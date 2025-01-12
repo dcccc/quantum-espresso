@@ -1,3 +1,106 @@
+# A Coulomb attenuating method range separated functional implemented quantum esspresso
+
+This is a modified verison of quantum espresso(base version is the devel branch[https://gitlab.com/QEF/q-e/-/tree/089dc4e7cfe0f2f6fdbec2fc07857fca4e31c76e]), in which the coulomb attenuating method range separated functionals can be used in pw calculation by obataining parameters from libxc[https://gitlab.com/libxc/libxc] or setting parameters in input file. Otherwise, rvv10 paramters can also be obtained from libxc.
+
+
+## Coulomb attenuating method range separated functional
+
+A additional input item has been added, "exx_fraction_lr", which is used to set the fraction of long range part of exact HF exchange potential. Combined with input item of "exx_fraction", the fraction of exact HF exchange potential, range separated functional calculation can be conducted. The exact HF exchange potential can be expressed as 
+
+$$V_{exx} = exx\\_fraction\cdot\frac{1}{|r-r'|} + exx\\_fraction\\_lr\cdot\frac{efr(\mu |r-r'|)}{|r-r'|}$$
+
+By using the libxc, the parameters can be obatained automatically. There is no need to set those parameters in input files. 
+
+Such as the example input in the test[https://github.com/dcccc/quantum-espresso/blob/master/test/N2_camb3lyp/pw.in]:
+```
+    ! it is the cam-b3lyp functional 
+    input_dft='xc-000i-000i-433l-000i-000i-000i',
+```
+
+In the output file[https://github.com/dcccc/quantum-espresso/blob/master/test/N2_camb3lyp/pw.out] of pw calculaiton, you can check the parameters from libxc used 
+
+```
+......
+     Current dimensions of program PWSCF are:
+     Max number of different atomic species (ntypx) = 10
+     Max number of k-points (npk) =  40000
+     Max angular momentum in pseudopotentials (lmaxx) =  4
+     screening_parameter from libxc    0.3300000
+     exx_fraction from libxc   0.1900000
+     exx_fraction_lr from libxc   0.4600000
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= XC-000I-000I-433L-000I-000I-000I
+                           (   0   0   0 433   0   0   0)
+     EXX-fraction              =        0.19
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+......
+```
+
+Besides, the parametes("exx_fraction", "exx_fraction_lr", "screening_parameter") can also modified for a better result by tuning the fractions and screening length.
+
+For example input in the test[https://github.com/dcccc/quantum-espresso/blob/master/test/N2_camb3lyp/pw_m.in]:
+```
+    input_dft='xc-000i-000i-434l-000i-000i-000i', exx_fraction=0.19,  exx_fraction_lr=0.46,screening_parameter=0.33,
+```
+The xc functional in "input_dft" is the TUNED_CAM_B3LYP[https://doi.org/10.1016/j.jphotochem.2012.03.003], not the CAM_B3LYP[https://doi.org/10.1016/j.cplett.2004.06.011]. However, by setting the "exx_fraction", "exx_fraction_lr", "screening_parameter" parameters in input files(those parameters are also updated in libxc at the begaining of calculaitons), the functional is actually bacomes the CAM_B3LYP. cheking the output file[https://github.com/dcccc/quantum-espresso/blob/master/test/N2_camb3lyp/pw_m.in]
+
+```
+......
+     screening_parameter from libxc    0.1500000
+     exx_fraction from libxc   0.0799000
+     exx_fraction_lr from libxc   0.9201000
+......
+     exx_fraction to libxc    0.6500000
+     exx_fraction_sr to libxc   -0.4600000
+     screening_parameter to libxc    0.3300000
+......
+```
+
+we can see that "exx_fraction", "exx_fraction_lr", "screening_parameter" parameters are updated, and the final energies is identical to the energy with CAM_B3LYP functional without paramters setting in input file. 
+
+As to the name convention used here is different from libxc. So the values updated into libxc are not the same with values setted in input files.
+
+
+## wb97mrv, wb97xrv and b97mrv functionals
+
+The wb97mv(id=531), b97mv(id=254) and wb97xv(id=466) funtionals is not possiable at present with  quantum espresso, because the vv10[https://doi.org/10.1063/1.3521275] nonlocal functional is not implemented. But, as the rvv10[https://doi.org/10.1103/PhysRevB.87.041108] can be used, a rvv10 substitution version is possiable. The rvv10 paramters in those functionals had been optimized by Narbe Mardirossian et al.[https://pubs.acs.org/doi/10.1021/acs.jpclett.6b02527]. And there are available in a modified version of libxc[https://github.com/dcccc/libxc] (wb97mrv(id=768), b97mrv(id=769), wb97xrv(id=767)).
+
+Taking the case in the test as example[https://github.com/dcccc/quantum-espresso/blob/master/test/N2_wb97mv/pbe0_wb97mrv.in]
+
+'''
+    ! the wb97mrv
+    input_dft='xc-000i-000i-000i-000i-768l-000i-vv10',
+'''
+
+In the output file, the parameters of can be checked
+
+```
+......
+     rvv10 b value from libxc   6.2000000
+     rvv10_c value from libxc   0.0093000
+     screening_parameter from libxc    0.3000000
+     exx_fraction from libxc   0.1500000
+     exx_fraction_lr from libxc   0.8500000
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= XC-000I-000I-000I-000I-768L-000I-VV10
+                           (   0   0   0   0  26   0 768)
+     EXX-fraction              =        0.15
+......
+```
+
+
+## NOTICE
+
+Threr is no **GUARANTY**. You should always do test calcultions, and make sure this is really what you want before production calcuations. A good calculaiton result comes from a reasonable model, and the calculation is always a rubbish in rubbish out style work.
+
+
+Following is the original readme content
+
+=====================================================================================================================================
+
 ![q-e-logo](logo.jpg)
 
 This is the distribution of the Quantum ESPRESSO suite of codes (ESPRESSO:
