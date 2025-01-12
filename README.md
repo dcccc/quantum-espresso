@@ -3,7 +3,7 @@
 This is a modified verison of quantum espresso(base version is the devel branch[https://gitlab.com/QEF/q-e/-/tree/089dc4e7cfe0f2f6fdbec2fc07857fca4e31c76e]), in which the coulomb attenuating method range separated functionals can be used in pw calculation by obataining parameters from libxc[https://gitlab.com/libxc/libxc] or setting parameters in input file. Otherwise, rvv10 paramters can also be obtained from libxc.
 
 
-## Coulomb attenuating method range separated functional
+## 1. Coulomb attenuating method range separated functional
 
 A additional input item has been added, "exx_fraction_lr", which is used to set the fraction of long range part of exact HF exchange potential. Combined with input item of "exx_fraction", the fraction of exact HF exchange potential, range separated functional calculation can be conducted. The exact HF exchange potential can be expressed as 
 
@@ -63,7 +63,7 @@ we can see that "exx_fraction", "exx_fraction_lr", "screening_parameter" paramet
 As to the name convention used here is different from libxc. So the values updated into libxc are not the same with values setted in input files.
 
 
-## wb97mrv, wb97xrv and b97mrv functionals
+## 2. wb97mrv, wb97xrv and b97mrv functionals
 
 The wb97mv(id=531), b97mv(id=254) and wb97xv(id=466) funtionals is not possiable at present with  quantum espresso, because the vv10[https://doi.org/10.1063/1.3521275] nonlocal functional is not implemented. But, as the rvv10[https://doi.org/10.1103/PhysRevB.87.041108] can be used, a rvv10 substitution version is possiable. The rvv10 paramters in those functionals had been optimized by Narbe Mardirossian et al.[https://pubs.acs.org/doi/10.1021/acs.jpclett.6b02527]. And there are available in a modified version of libxc[https://github.com/dcccc/libxc] (wb97mrv(id=768), b97mrv(id=769), wb97xrv(id=767)).
 
@@ -94,7 +94,9 @@ In the output file, the parameters of can be checked
 
 ## NOTICE
 
-Threr is no **GUARANTY**. You should always do test calcultions, and make sure this is really what you want before production calcuations. A good calculaiton result comes from a reasonable model, and the calculation is always a rubbish in rubbish out style work.
+1. In the calculations, "exx_fraction" can not be setted to a zero value, which will cause a numerial error in the calculations. If only long range part of exact exchange potential is needed, a small value of "exx_fraction", like 0.0001, maybe reasonable. In that case, a additional negligible exact exchange potential may have little influence on the final result.
+
+2. Threr is **no GUARANTY**. Before production calcuations you should always do test calcultions and make sure this is really what you want. A good calculaiton result comes from a reasonable model, and the calculation is always a rubbish in rubbish out style work.
 
 
 Following is the original readme content
