@@ -1,0 +1,42 @@
+INFO
+ Bulk Silicon.
+ Gamma point calculation with 2 atoms (primitive cell).
+&END
+
+&CPMD
+  OPTIMIZE WAVEFUNCTION
+  CONVERGENCE ORBITALS
+   1.0e-7
+  MAXSTEP
+  1000
+&END
+
+
+&DFT
+XC_DRIVER
+FUNCTIONAL HYB_GGA_XC_CAM_B3LYP
+LIBRARY  LIBXC
+SCALES 1.0
+COULOMB ATTENUATION
+0.330 0.19 0.46
+NUMERICAL_DIV
+&END
+
+&SYSTEM
+  SYMMETRY
+  CUBIC
+  SCALE
+  CELL
+  16.0 1.0  1.0  0  0  0
+  CUTOFF
+  30.0
+&END
+
+&ATOMS
+*N-q5    
+   LMAX=P
+   2
+      0.0               0.0   0.0 
+      0.14763485355     0.0   0.0 
+&END
+
