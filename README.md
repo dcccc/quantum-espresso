@@ -1,6 +1,6 @@
 # A Coulomb attenuating method range separated functional implemented quantum esspresso
 
-This is a modified verison of quantum espresso(base version is the devel branch[https://gitlab.com/QEF/q-e/-/tree/089dc4e7cfe0f2f6fdbec2fc07857fca4e31c76e]), in which the coulomb attenuating method range separated functionals can be used in pw calculation by obataining parameters from libxc[https://gitlab.com/libxc/libxc] or setting parameters in input file. Otherwise, rvv10 paramters can also be obtained from libxc.
+This is a modified verison of quantum espresso(base version is the devel branch[https://gitlab.com/QEF/q-e/-/tree/089dc4e7cfe0f2f6fdbec2fc07857fca4e31c76e]), in which the coulomb attenuating method range separated functionals can be used in pw calculation by obataining parameters from libxc[https://gitlab.com/libxc/libxc] or setting parameters in input file. Besides, rvv10 paramters can also be obtained from libxc.
 
 
 ## 1. Coulomb attenuating method range separated functional
