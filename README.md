@@ -94,9 +94,12 @@ In the output file, the parameters of can be checked
 
 ## NOTICE
 
-1. In the calculations, "exx_fraction" can not be setted to a zero value, which will cause a numerial error in the calculations. If only long range part of exact exchange potential is needed, a small value of "exx_fraction", like 0.0001, maybe reasonable. In that case, a additional negligible exact exchange potential may have little influence on the final result.
 
-2. Threr is **no GUARANTY**. Before production calcuations you should always do test calcultions and make sure this is really what you want. A good calculaiton result comes from a reasonable model, and the calculation is always a rubbish in rubbish out style work.
+1.  "vcut_spherical" method to treat the Coulomb potential divergencies at small q vectors for range separate functional is added. 'gygi-baldereschi' and 'vcut_ws' method are unmodified. You can refer to discription in vasp manual[https://doi.org/10.1103/PhysRevB.77.193110] or original article[https://doi.org/10.1103/PhysRevB.77.193110] for details.
+
+2. In the calculations, "exx_fraction" can not be setted to a zero value, which will cause a numerial error in the calculations. If only long range part of exact exchange potential is needed, a small value of "exx_fraction", like 0.0001, maybe reasonable. In that case, a additional negligible exact exchange potential may have little influence on the final result.
+
+3. Threr is **NO GUARANTY**. Before production calcuations you should always do test calcultions and make sure this is really what you want. A good calculaiton result comes from a reasonable model, and the calculation is always a rubbish in rubbish out style work.
 
 
 Following is the original readme content
