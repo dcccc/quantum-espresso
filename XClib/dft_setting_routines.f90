@@ -550,6 +550,7 @@ CONTAINS
     ! AH-CROSStest-SERIES PBE-AH (at 34), PBESOL-AH (at 35)
     IF ( (igcx==34 .OR. igcx==35) .AND. .NOT.is_libxc(3) ) THEN
        exx_fraction = 0.20_DP
+       exx_fraction_lr = -0.20_DP
        screening_parameter = 0.106_DP
     ENDIF
     ! gau-pbe

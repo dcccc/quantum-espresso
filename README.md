@@ -95,7 +95,7 @@ In the output file, the parameters of can be checked
 ## NOTICE
 
 
-1.  "vcut_spherical" method to treat the Coulomb potential divergencies at small q vectors for range separate functional is added. 'gygi-baldereschi' and 'vcut_ws' method are unmodified. You can refer to discription in vasp manual[https://doi.org/10.1103/PhysRevB.77.193110] or original article[https://doi.org/10.1103/PhysRevB.77.193110] for details.
+1.  "vcut_spherical" method to treat the Coulomb potential divergencies at small q vectors for range separate functional is added. 'gygi-baldereschi' and 'vcut_ws' method are unmodified. You can refer to discription in vasp manual[https://www.vasp.at/wiki/index.php/Coulomb_singularity] or original article[https://doi.org/10.1103/PhysRevB.77.193110] for details.
 
 2. In the calculations, "exx_fraction" can not be setted to a zero value, which will cause a numerial error in the calculations. If only long range part of exact exchange potential is needed, a small value of "exx_fraction", like 0.0001, maybe reasonable. In that case, a additional negligible exact exchange potential may have little influence on the final result.
 
