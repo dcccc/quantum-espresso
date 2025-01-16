@@ -757,7 +757,7 @@ MODULE exx_base
     IF ( use_coulomb_vcut_spheric ) THEN
        DO ig = 1, ngm
           q(:)= ( xk(:) - xkq(:) + g(:,ig) ) * tpiba
-          fac(ig) = vcut_spheric_get(vcut,q)
+          fac(ig) = vcut_spheric_get(vcut,q,exx_fraction, exx_fraction_lr, screening_parameter)
        ENDDO
        RETURN
     ENDIF

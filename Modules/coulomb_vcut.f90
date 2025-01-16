@@ -182,31 +182,146 @@ END SUBROUTINE vcut_destroy
   !
 END FUNCTION vcut_get
 
+
 !------------------------------------------
-  FUNCTION vcut_spheric_get(vcut,q) RESULT(res)
+subroutine wofz(z, result_value)
+  ! wofz computes the Faddeeva function w(z) for complex z,
+  ! the funcion used here is derived from the plasma dispersion function z(x) = i*sqrt(pi)*w(z),
+  ! the following plasma dispersion function is a multi-pole approximation by Huasheng Xie in 
+  ! article "AIP Advances 1 July 2024; 14 (7): 075007 ", https://github.com/hsxie/gpdf/tree/main
+  ! With a error of 1e-13 for J=24, which is enough for a double precision calculation here
+  !------------------------------------------
+  complex(dp), intent(in) :: z
+  complex(dp) :: z_conj = cmplx(0.0_dp,0.0_dp, dp)
+  complex(dp) :: b(12)
+  complex(dp) :: c(12)
+  integer    :: n
+  complex(dp) :: result_value
+
+  b( 1) = cmplx( -579.77656932346560644_dp , -844.01436313629880827_dp                  ,dp)
+  b( 2) = cmplx( -179.52530851977905732_dp , -86.660002027244731382_dp                  ,dp)
+  b( 3) = cmplx( -52.107235029274485215_dp , 453.3246806707749413_dp                    ,dp)
+  b( 4) = cmplx( -2.1607927691932962178_dp , 0.63681255371973499384_dp                  ,dp)
+  b( 5) = cmplx( -0.018283386874895507814_dp , -0.21941582055233427677_dp               ,dp)
+  b( 6) = cmplx( -0.00006819511737162705016_dp , 0.00032026091897256872621_dp           ,dp)
+  b( 7) = cmplx( -0.0000028986123310445793648_dp , -0.00000099510625011385493369_dp     ,dp)
+  b( 8) = cmplx(  0.0000000023382228949223867744_dp , -0.0000000040404517369565098657_dp,dp)
+  b( 9) = cmplx(  0.01221466589423530596_dp , 0.00097890737323377354166_dp              ,dp)
+  b(10) = cmplx(  7.3718296773233126912_dp , -12.575687057120635407_dp                  ,dp)
+  b(11) = cmplx( 44.078424019374375065_dp , -46.322124026599601416_dp                   ,dp)
+  b(12) = cmplx( 761.62579175738689742_dp , 185.11797721443392707_dp                    ,dp)
+
+  c( 1) = cmplx(   0.16167711630587375808393823760988_dp , -2.9424665391729649010502939606152_dp, dp)
+  c( 2) = cmplx(   1.15091358764935672445993980434790_dp , -2.8745542965490153159866506667543_dp, dp)
+  c( 3) = cmplx(   0.81513635269214329286824152984179_dp , -2.9085569383176322446978082849749_dp, dp)
+  c( 4) = cmplx(   2.23629505890417241107360738208440_dp , -2.7033607074680388479084431872604_dp, dp)
+  c( 5) = cmplx(   2.64035613134040415412304948466250_dp , -2.6228400297078984516779261304916_dp, dp)
+  c( 6) = cmplx(   3.56204974511970566578349904839670_dp , -2.4245607245823420555878190731282_dp, dp)
+  c( 7) = cmplx(   4.11692512571067539307286087375100_dp , -2.3036541720854573608940600179944_dp, dp)
+  c( 8) = cmplx(   4.80341174933603179331098307177070_dp , -2.1592490859689535412501218722927_dp, dp)
+  c( 9) = cmplx(   3.07789223492465673164827504614580_dp , -2.5301774598854448463007864644617_dp, dp)
+  c(10) = cmplx( - 1.85720886352407650035610904791930_dp , -2.7720571884094886583775397071469_dp, dp)
+  c(11) = cmplx(   1.49698813224668933803966639021490_dp , -2.8290855580900544693059801078858_dp, dp)
+  c(12) = cmplx( - 0.48636891219330428093331493852099_dp , -2.9311741817223824196339069754696_dp, dp)
+	
+	
+
+	z_conj = conjg(z)
+	IF (aimag(z) >= 0._dp ) THEN
+	  do n = 1, 12
+        result_value = result_value + b(n)/(z-c(n)) + conjg(b(n))/(z+conjg(c(n)))
+      end do
+	ELSE
+	  do n = 1, 12
+        result_value = result_value + b(n)/(z_conj-c(n)) + conjg(b(n))/(z_conj+conjg(c(n)))
+      end do
+	  result_value = conjg(result_value)
+	  result_value = result_value + cmplx(0.0_dp,2.0_dp, dp)*sqrt(pi)*exp(-z**2)
+	ENDIF
+    result_value = result_value / cmplx(0.0_dp,1.0_dp, dp) / sqrt(pi)
+end subroutine wofz
+
+
+subroutine erf_complex(z, result_value)
+  ! erf_complex computes the error function for complex z
+  ! please refer to http://ab-initio.mit.edu/faddeeva/
+  implicit none
+  INTEGER, PARAMETER :: dp = selected_real_kind(14,200)
+  REAL(DP), PARAMETER :: PI     = 3.14159265358979323846_dp
+  complex(dp), intent(in)  :: z
+  complex(dp)  :: tmp
+  complex(dp)  :: result_value
+
+
+    IF (real(z) >= 0._dp ) THEN
+      tmp = cmplx(0.0_dp,1.0_dp, dp)*z
+      call wofz(tmp, result_value)
+	  result_value = cmplx(1.0_dp,0.0_dp, dp) - exp(-z**2) * result_value
+	ELSE
+      tmp = cmplx(0.0_dp,-1.0_dp, dp)*z
+      call wofz(tmp, result_value)
+	  result_value = exp(-z**2) * result_value-cmplx(1.0_dp,0.0_dp, dp)
+	ENDIF
+   
+end subroutine erf_complex
+
+
+!------------------------------------------
+  FUNCTION vcut_spheric_get(vcut, q, exx_fraction, exx_fraction_lr, screen_parameter) RESULT(res)
   !------------------------------------------
   !
   TYPE(vcut_type), INTENT(IN) :: vcut
   REAL(DP),        INTENT(IN) :: q(3)
   REAL(DP)                    :: res 
+  REAL(DP)                    :: res_sr
+  REAL(DP),optional,INTENT(IN) :: exx_fraction
+  REAL(DP),optional,INTENT(IN) :: exx_fraction_lr
+  REAL(DP),optional,INTENT(IN) :: screen_parameter
+  complex(dp) :: z, result_value
+
   !
   REAl(DP) :: a(3,3), Rcut, kg2 
   LOGICAL  :: limit
   !
   !
+
   a = vcut%a
   !
   Rcut=0.5*minval(sqrt(sum(a**2,1)))
   Rcut=Rcut-Rcut/50.0
   limit=.false.
   kg2=sum(q**2)
+  result_value = cmplx(0.0_dp,0.0_dp, dp)
   if(kg2<eps6) then
     limit=.true.
   endif
+  ! spherical cut method for bare Coulomb potential and its short-range part
+  ! see e.g. J. Spencer and A. Alavi, Phys. Phys. Rev. B 77, 193110 (2008)
+  ! please refer to https://www.vasp.at/wiki/index.php/Coulomb_singularity 
+  ! for the details of the spherical cut method
+  ! V_exx = exx_fraction*V_coulomb + exx_fraction_lr * V_coulomb_lr
+  !       = (exx_fraction+exx_fraction_lr)*V_coulomb - exx_fraction_lr * V_coulomb_sr
   if(.not.limit) then
-    res=FPI*e2/kg2*(1.0-cos(Rcut*sqrt(kg2)))
+    ! full part
+    res=TPI*e2/kg2*(1.0-cos(Rcut*sqrt(kg2)))
+    if (exx_fraction_lr/=0._dp .and. screen_parameter > 0._dp) then
+      z = cmplx(screen_parameter*Rcut, sqrt(kg2)/2.0_dp*screen_parameter, dp)
+      call erf_complex(z, result_value)
+      ! short-range part
+      res_sr = TPI*e2/kg2*(1.0-cos(Rcut*sqrt(kg2))*erfc(screen_parameter*Rcut) - &
+                           exp(-kg2/4.0_dp/screen_parameter**2)*REAL(result_value))
+      res = (res*(exx_fraction+exx_fraction_lr) - res_sr*exx_fraction_lr)/exx_fraction
+    end if
   else
+    ! full part
     res=FPI*e2*Rcut**2/2.0
+    if (exx_fraction_lr/=0._dp .and. screen_parameter > 0._dp) then
+      ! short-range part
+      res_sr = TPI*(Rcut**2*erfc(screen_parameter*Rcut) - &
+                    Rcut*exp(-screen_parameter**2*Rcut**2)/(sqrt(pi)*screen_parameter) + &
+                    erf(screen_parameter*Rcut)/2.0_dp/screen_parameter**2)
+      res = (res*(exx_fraction+exx_fraction_lr) - res_sr*exx_fraction_lr)/exx_fraction
+    end if
   endif
   !
 END FUNCTION vcut_spheric_get
